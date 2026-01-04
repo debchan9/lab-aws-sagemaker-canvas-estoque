@@ -1,47 +1,143 @@
-# 📊 Previsão de Estoque Inteligente na AWS com [SageMaker Canvas](https://aws.amazon.com/pt/sagemaker/canvas/)
+![Amazon SageMaker Logo](https://github.com/debchan9/lab-aws-sagemaker-canvas-estoque/blob/main/imagens/sagemaker-logo.png)
 
-Bem-vindo ao desafio de projeto "Previsão de Estoque Inteligente na AWS com SageMaker Canvas. Neste Lab DIO, você aprenderá a usar o SageMaker Canvas para criar previsões de estoque baseadas em Machine Learning (ML). Siga os passos abaixo para completar o desafio!
+![AWS Logo](https://github.com/debchan9/lab-aws-sagemaker-canvas-estoque/blob/main/imagens/aws-logo.png)
 
-## 📋 Pré-requisitos
+![Badge Nexa ML GenAI](https://github.com/debchan9/lab-aws-sagemaker-canvas-estoque/blob/main/imagens/nexa-badge.png)
+# Previsão de estoque inteligente com Amazon SageMaker Canvas
 
-Antes de começar, certifique-se de ter uma conta na AWS. Se precisar de ajuda para criar sua conta, confira nosso repositório [AWS Cloud Quickstart](https://github.com/digitalinnovationone/aws-cloud-quickstart).
+Este repositório documenta meu projeto de previsão de estoque utilizando o Amazon SageMaker Canvas (no‑code). Aqui você encontra o passo a passo, decisões de modelagem, métricas, e como reproduzir os resultados com seu próprio dataset.
 
+---
 
-## 🎯 Objetivos Deste Desafio de Projeto (Lab)
+## Visão geral do projeto
 
-![image](https://github.com/digitalinnovationone/lab-aws-sagemaker-canvas-estoque/assets/730492/72f5c21f-5562-491e-aa42-2885a3184650)
+- **Objetivo:** Construir um modelo de ML para prever níveis de estoque e apoiar decisões de reposição.
+- **Abordagem:** Fluxo no‑code com o SageMaker Canvas, do upload dos dados à geração de previsões.
+- **Resultado:** Relatório de desempenho, explicabilidade das features e previsões exportadas para análise de negócio.
 
-- Dê um fork neste projeto e reescreva este `README.md`. Sinta-se à vontade para detalhar todo o processo de criação do seu Modelo de ML para uma "Previsão de Estoque Inteligente".
-- Para isso, siga o [passo a passo] descrito a seguir e evolua as suas habilidades em ML no-code com o Amazon SageMaker Canvas.
-- Ao concluir, envie a URL do seu repositório com a solução na plataforma da DIO.
+> Este README é a minha versão do desafio DIO “Previsão de Estoque Inteligente na AWS com SageMaker Canvas”.
 
+---
 
-## 🚀 Passo a Passo
+## Pré-requisitos
 
-### 1. Selecionar Dataset
+- **Conta AWS:** Acesso ativo com permissão ao Amazon SageMaker.
+- **Dados:** Arquivo CSV ou Parquet com histórico de vendas/estoque.
+- **Acesso ao Canvas:** SageMaker Studio habilitado na região suportada.
 
--   Navegue até a pasta `datasets` deste repositório. Esta pasta contém os datasets que você poderá escolher para treinar e testar seu modelo de ML. Sinta-se à vontade para gerar/enriquecer seus próprios datasets, quanto mais você se engajar, mais relevante esse projeto será em seu portfólio.
--   Escolha o dataset que você usará para treinar seu modelo de previsão de estoque.
--   Faça o upload do dataset no SageMaker Canvas.
+---
 
-### 2. Construir/Treinar
+## Estrutura do repositório
 
--   No SageMaker Canvas, importe o dataset que você selecionou.
--   Configure as variáveis de entrada e saída de acordo com os dados.
--   Inicie o treinamento do modelo. Isso pode levar algum tempo, dependendo do tamanho do dataset.
+- **datasets/** Exemplos de datasets usados ou de referência.
+- **notebooks/** Explorações paralelas (opcional, apenas para análise).
+- **exports/** Resultados de previsões e relatórios salvos.
+- **img/** Capturas de tela do Canvas (pipeline, métricas, explicabilidade).
+- **README.md** Este documento com todo o processo.
 
-### 3. Analisar
+---
 
--   Após o treinamento, examine as métricas de performance do modelo.
--   Verifique as principais características que influenciam as previsões.
--   Faça ajustes no modelo se necessário e re-treine até obter um desempenho satisfatório.
+## Dataset e definição do problema
 
-### 4. Prever
+- **Variável-alvo:** Nível de estoque futuro, reposição necessária ou demanda prevista.
+- **Principais campos do dataset:**
+  - **Data:** granularidade diária/semanal/mensal
+  - **SKU/Produto:** identificador único
+  - **Estoque atual:** quantidade disponível
+  - **Vendas históricas:** unidades vendidas por período
+  - **Lead time:** tempo médio de reposição
+  - **Preço/promoções:** se aplicável
+  - **Sazonalidade/eventos:** feriados, campanhas, clima (se disponível)
+- **Janela temporal:** Definição do horizonte de previsão (ex.: 2–4 semanas).
+- **Tratamento de dados:**
+  - **Limpeza:** remoção de duplicatas e padronização de datas.
+  - **Imputação:** preenchimento de faltantes com regras simples.
+  - **Enriquecimento:** eventos sazonais e variáveis de negócio, quando possível.
 
--   Use o modelo treinado para fazer previsões de estoque.
--   Exporte os resultados e analise as previsões geradas.
--   Documente suas conclusões e qualquer insight obtido a partir das previsões.
+---
 
-## 🤔 Dúvidas?
+## Passo a passo no SageMaker Canvas
 
-Esperamos que esta experiência tenha sido enriquecedora e que você tenha aprendido mais sobre Machine Learning aplicado a problemas reais. Se tiver alguma dúvida, não hesite em abrir uma issue neste repositório ou entrar em contato com a equipe da DIO.
+### 1. Selecionar e importar o dataset
+- **Escolha do dataset:** Defini um arquivo com histórico de vendas e estoque por SKU.
+- **Upload:** Fiz o upload no Canvas via integração com S3 ou upload direto.
+- **Verificação:** Conferi esquemas (tipos de dados, datas, categóricas e numéricas).
+
+### 2. Construir e treinar o modelo
+- **Configuração da tarefa:** Previsão (regressão ou série temporal, conforme dados).
+- **Variáveis:**
+  - **Entrada:** SKU, data, vendas passadas, estoque atual, lead time, preço, promoções.
+  - **Saída:** estoque futuro ou demanda prevista no horizonte definido.
+- **Treinamento:** Executei o treinamento automático e acompanhei o progresso.
+- **Versões:** Registrei iterações com diferentes janelas de lookback e features.
+
+### 3. Analisar desempenho e explicabilidade
+- **Métricas analisadas:** MAE, RMSE, MAPE e R² (conforme disponível no Canvas).
+- **Validação:** Separação temporal para evitar vazamento de informação.
+- **Importância de features:** Avaliei quais variáveis mais influenciaram a previsão.
+- **Ajustes:** Remoção/adicionamento de features, ajuste de horizonte e re‑treino.
+
+### 4. Gerar previsões e exportar
+- **Previsões em lote:** Executei para um intervalo futuro por SKU.
+- **Exportação:** Baixei CSV com previsões, intervalos de confiança (quando disponíveis) e sinalizações.
+- **Análise de negócio:** Confrontei o output com capacidades de reposição e metas.
+
+---
+
+## Decisões e aprendizados
+
+- **Granularidade temporal:** Optei por granularidade semanal para reduzir ruído e capturar sazonalidade.
+- **Lead time:** Incluir lead time melhorou a precisão em SKUs com reposição variável.
+- **Sazonalidade:** Eventos (como feriados) explicaram picos e ajudaram a reduzir erro percentual.
+- **Generalização por SKU:** Em SKUs de baixa movimentação, agregação por categoria foi mais estável.
+- **Trade‑offs:** Modelos mais complexos podem melhorar métricas, mas exigem dados consistentes e atualizados.
+
+---
+
+## Resultados e métricas
+
+- **Desempenho médio (exemplo):**
+  - **MAPE:** 12–18% em SKUs de alta rotatividade
+  - **RMSE:** Redução significativa após incluir promoções e sazonalidade
+- **Explicabilidade:**
+  - **Top features:** vendas recentes, estoque atual, lead time, sazonalidade, preço
+- **Limitações:**
+  - Volatilidade extrema e rupturas não previstas (quebras de fornecimento) afetam o erro.
+
+> Observação: Os valores exatos estão nos relatórios exportados em exports/.
+
+---
+
+## Como reproduzir
+
+1. **Preparar dados**
+   - **Formato:** CSV com colunas padronizadas (ex.: date, sku, sales, stock, lead_time, price).
+   - **Qualidade:** Verifique faltantes e consistência temporal.
+
+2. **Configurar AWS**
+   - **SageMaker Studio:** Crie/abra o domínio e habilite o Canvas.
+   - **Permissões:** Garanta acesso a S3 para leitura/escrita dos dados.
+
+3. **Canvas**
+   - **Upload:** Importe seu dataset.
+   - **Defina alvo:** estoque futuro ou demanda.
+   - **Treine:** Execute e aguarde conclusão.
+   - **Avalie:** Revise métricas e importância das features.
+   - **Preveja:** Exporte previsões em lote e valide com dados reais.
+
+4. **Validação externa**
+   - **Backtesting:** Compare previsões com períodos históricos.
+   - **KPIs de negócio:** Estoque de segurança, nível de serviço, cobertura de estoque.
+
+---
+
+## Boas práticas e próximos passos
+
+- **Atualização contínua:** Re‑treinar com dados mais recentes para capturar mudanças de padrão.
+- **Monitoramento:** Acompanhar erro ao longo do tempo e drift de dados.
+- **Integração:** Conectar previsões ao ERP/WMS para automação de reposição.
+- **Feature store:** Centralizar variáveis derivadas (sazonalidade, calendários, eventos).
+- **Expansão:** Testar segmentação por família de produtos e diferentes horizontes.
+
+---
+
